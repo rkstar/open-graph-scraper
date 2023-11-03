@@ -5,16 +5,6 @@ import ogs from '../../index';
 
 const ogsRequire = require('../../index');
 
-// for http debugging
-// import diagnosticsChannel from 'diagnostics_channel'
-// diagnosticsChannel.channel('undici:request:create').subscribe(({ request }) => {
-//   console.log('origin:', request.origin);
-//   console.log('completed:', request.completed);
-//   console.log('method:', request.method);
-//   console.log('path:', request.path);
-//   console.log('headers:', request.headers);
-// });
-
 describe('basic', function () {
   it('using promises should return valid data', function () {
     return ogsRequire({ url: 'https://ogp.me/' }).then(function ({ error, result, response }) {
@@ -79,28 +69,33 @@ describe('basic', function () {
   });
   it('using callbackify should return valid data', function () {
     const ogsCallback = util.callbackify(ogsRequire);
-    return ogsCallback({
-      url: 'https://ogp.me/',
-    }, function (error, response) {
-      console.log('error:', response.error);
-      console.log('result:', response.result);
-      expect(response.error).to.be.eql(false);
-      expect(response.result.ogTitle).to.be.eql('Open Graph protocol');
-      expect(response.result.ogType).to.be.eql('website');
-      expect(response.result.ogUrl).to.be.eql('https://ogp.me/');
-      expect(response.result.ogDescription).to.be.eql('The Open Graph protocol enables any web page to become a rich object in a social graph.');
-      expect(response.result.ogImage).to.be.eql([{
-        url: 'https://ogp.me/logo.png',
-        width: '300',
-        height: '300',
-        type: 'image/png',
-      }]);
-      expect(response.result.requestUrl).to.be.eql('https://ogp.me/');
-      expect(response.result.charset).to.be.eql('utf-8');
-      expect(response.result.success).to.be.eql(true);
-      expect(response.result).to.have.all.keys('ogTitle', 'ogType', 'ogUrl', 'ogDescription', 'ogImage', 'requestUrl', 'charset', 'success');
-      expect(response.response).to.be.an('Response');
-    });
+    return ogsCallback(
+      {
+        url: 'https://ogp.me/',
+
+      },
+      // @ts-ignore
+      function (error: any, response: any) {
+        console.log('error:', response.error);
+        console.log('result:', response.result);
+        expect(response.error).to.be.eql(false);
+        expect(response.result.ogTitle).to.be.eql('Open Graph protocol');
+        expect(response.result.ogType).to.be.eql('website');
+        expect(response.result.ogUrl).to.be.eql('https://ogp.me/');
+        expect(response.result.ogDescription).to.be.eql('The Open Graph protocol enables any web page to become a rich object in a social graph.');
+        expect(response.result.ogImage).to.be.eql([{
+          url: 'https://ogp.me/logo.png',
+          width: '300',
+          height: '300',
+          type: 'image/png',
+        }]);
+        expect(response.result.requestUrl).to.be.eql('https://ogp.me/');
+        expect(response.result.charset).to.be.eql('utf-8');
+        expect(response.result.success).to.be.eql(true);
+        expect(response.result).to.have.all.keys('ogTitle', 'ogType', 'ogUrl', 'ogDescription', 'ogImage', 'requestUrl', 'charset', 'success');
+        expect(response.response).to.be.an('Response');
+      },
+    );
   });
   it('using ogs import should still work', async function () {
     return ogs({ url: 'https://ogp.me/' }).then(function ({ error, result, response }) {

@@ -1,7 +1,7 @@
 {
-  "name": "open-graph-scraper",
-  "description": "Node.js scraper module for Open Graph and Twitter Card info",
-  "version": "6.3.2",
+  "name": "react-native-open-graph-scraper",
+  "description": "React Native scraper module for Open Graph and Twitter Card info",
+  "version": "6.3.3",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -20,14 +20,14 @@
     "node": ">=18.0.0"
   },
   "author": {
-    "name": "Josh Shemas",
-    "email": "jjs90jjs@gmail.com",
-    "url": "https://github.com/jshemas"
+    "name": "David Fudge",
+    "email": "rkstar@mac.com",
+    "url": "https://github.com/rkstar"
   },
   "dependencies": {
+    "axios": "^1.6.0",
     "chardet": "^2.0.0",
     "cheerio": "^1.0.0-rc.12",
-    "undici": "^5.26.4",
     "validator": "^13.11.0"
   },
   "files": [
@@ -37,6 +37,7 @@
   ],
   "devDependencies": {
     "@snyk/protect": "^1.1236.0",
+    "@types/axios": "^0.14.0",
     "@types/mocha": "^10.0.3",
     "@types/node": "^18.18.3",
     "@types/validator": "^13.11.5",
@@ -57,8 +58,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/jshemas/openGraphScraper.git",
-    "web": "http://github.com/jshemas/openGraphScraper"
+    "url": "http://github.com/rkstar/open-graph-scraper.git",
+    "web": "http://github.com/rkstar/open-graph-scraper"
   },
   "keywords": [
     "app links",

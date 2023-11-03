@@ -1,4 +1,4 @@
-import { fetch } from 'undici';
+import axios from 'axios';
 import type { OpenGraphScraperOptions } from './types';
 
 /**
@@ -12,7 +12,7 @@ export default async function requestAndResultsFormatter(options: OpenGraphScrap
   let body;
   let response;
   try {
-    response = await fetch(
+    response = await axios.get(
       options.url || '',
       {
         signal: AbortSignal.timeout((options.timeout || 10) * 1000),

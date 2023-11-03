@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import chardet from 'chardet';
-import { MockAgent, setGlobalDispatcher } from 'undici';
+import axios, { AxiosResponse } from 'axios';
 import ogs from '../../index';
 
 const basicHTML = `
@@ -55,24 +55,18 @@ const encodingHTML = `
   </html>`;
 
 const sandbox = sinon.createSandbox();
-const mockAgent = new MockAgent();
 
 describe('return ogs', function () {
-  beforeEach(function () {
-    setGlobalDispatcher(mockAgent);
-    mockAgent.disableNetConnect();
-  });
-
   afterEach(function () {
+    axios.interceptors.response.clear();
     sandbox.restore();
-    mockAgent.enableNetConnect();
   });
 
   context('should be able to hit site and find OG title info', function () {
     it('using just a url', function () {
-      mockAgent.get('http://www.test.com')
-        .intercept({ path: '/' })
-        .reply(200, basicHTML);
+      axios.interceptors.response.use(function (response: AxiosResponse<any, any>) {
+        return { ...response, data: { html: basicHTML } };
+      });
 
       return ogs({ url: 'www.test.com' })
         .then(function (data) {
@@ -85,6 +79,13 @@ describe('return ogs', function () {
     });
 
     it('with html', function () {
+      axios.interceptors.response.use(function (response: AxiosResponse<any, any>) {
+        return {
+          ...response,
+          data: { html: basicHTML },
+        };
+      });
+
       return ogs({ html: basicHTML })
         .then(function (data) {
           expect(data.result.success).to.be.eql(true);
@@ -95,9 +96,9 @@ describe('return ogs', function () {
     });
 
     it('when site is not on blacklist', function () {
-      mockAgent.get('http://www.test.com')
-        .intercept({ path: '/' })
-        .reply(200, basicHTML);
+      axios.interceptors.response.use(function (response: AxiosResponse<any, any>) {
+        return { ...response, data: basicHTML };
+      });
 
       return ogs({ url: 'www.test.com', blacklist: ['testtest.com'] })
         .then(function (data) {
@@ -110,9 +111,9 @@ describe('return ogs', function () {
     });
 
     it('with encoding set to null (this has been deprecated, but should still work)', function () {
-      mockAgent.get('http://www.test.com')
-        .intercept({ path: '/' })
-        .reply(200, Buffer.from(encodingHTML, 'utf8'));
+      axios.interceptors.response.use(function (response: AxiosResponse<any, any>) {
+        return { ...response, data: Buffer.from(encodingHTML, 'utf8') };
+      });
 
       return ogs({ url: 'www.test.com' })
         .then(function (data) {
@@ -127,9 +128,9 @@ describe('return ogs', function () {
     });
 
     it('when there is more then one image', function () {
-      mockAgent.get('http://www.test.com')
-        .intercept({ path: '/' })
-        .reply(200, multipleImageHTML);
+      axios.interceptors.response.use(function (response: AxiosResponse<any, any>) {
+        return { ...response, data: multipleImageHTML };
+      });
 
       return ogs({ url: 'www.test.com' })
         .then(function (data) {
@@ -149,9 +150,9 @@ describe('return ogs', function () {
     });
 
     it('when meta description exist while og description does not', function () {
-      mockAgent.get('http://www.test.com')
-        .intercept({ path: '/' })
-        .reply(200, metaDescriptionHTML);
+      axios.interceptors.response.use(function (response: AxiosResponse<any, any>) {
+        return { ...response, data: metaDescriptionHTML };
+      });
 
       return ogs({ url: 'www.test.com' })
         .then(function (data) {
@@ -165,9 +166,9 @@ describe('return ogs', function () {
     });
 
     it('using onlyGetOpenGraphInfo', function () {
-      mockAgent.get('http://www.test.com')
-        .intercept({ path: '/' })
-        .reply(200, metaDescriptionHTML);
+      axios.interceptors.response.use(function (response: AxiosResponse<any, any>) {
+        return { ...response, data: metaDescriptionHTML };
+      });
 
       return ogs({ url: 'www.test.com', onlyGetOpenGraphInfo: true })
         .then(function (data) {
@@ -189,9 +190,9 @@ describe('return ogs', function () {
           <body></body>
         </html>`;
 
-      mockAgent.get('http://www.test.com')
-        .intercept({ path: '/' })
-        .reply(200, secureUrlHTML);
+      axios.interceptors.response.use(function (response: AxiosResponse<any, any>) {
+        return { ...response, data: secureUrlHTML };
+      });
 
       return ogs({ url: 'www.test.com' })
         .then(function (data) {
@@ -213,9 +214,9 @@ describe('return ogs', function () {
           </head>
         </html>`;
 
-      mockAgent.get('http://www.test.com')
-        .intercept({ path: '/' })
-        .reply(200, missingContentHTML);
+      axios.interceptors.response.use(function (response: AxiosResponse<any, any>) {
+        return { ...response, data: missingContentHTML };
+      });
 
       return ogs({ url: 'www.test.com' })
         .then(function (data) {
@@ -236,9 +237,9 @@ describe('return ogs', function () {
           <body></body>
         </html>`;
 
-      mockAgent.get('http://www.test.com')
-        .intercept({ path: '/' })
-        .reply(200, secureUrlHTML);
+      axios.interceptors.response.use(function (response: AxiosResponse<any, any>) {
+        return { ...response, data: secureUrlHTML };
+      });
 
       return ogs({ url: 'www.test.com' })
         .then(function (data) {
@@ -254,11 +255,16 @@ describe('return ogs', function () {
 
     context('when charset and chardet are unknown', function () {
       beforeEach(async function () {
-        mockAgent.get('http://www.test.com')
-          .intercept({ path: '/' })
-          .reply(200, basicHTML);
+        axios.interceptors.response.use(function (response: AxiosResponse<any, any>) {
+          return { ...response, data: basicHTML };
+        });
         sandbox.stub(chardet, 'detect').returns(false);
       });
+
+      afterEach(function () {
+        axios.interceptors.response.clear();
+      });
+
       it('using promises', function () {
         return ogs({ url: 'www.test.com' })
           .then(function (data) {
@@ -272,10 +278,6 @@ describe('return ogs', function () {
     });
 
     it('when passing in a custom tag', function () {
-      mockAgent.get('http://www.test.com')
-        .intercept({ path: '/' })
-        .reply(200, basicHTML);
-
       return ogs({
         url: 'www.test.com',
         customMetaTags: [{
@@ -299,10 +301,6 @@ describe('return ogs', function () {
     });
 
     it('when passing in a custom tag and nothing is found', function () {
-      mockAgent.get('http://www.test.com')
-        .intercept({ path: '/' })
-        .reply(200, basicHTML);
-
       return ogs({
         url: 'www.test.com',
         customMetaTags: [{
@@ -323,10 +321,17 @@ describe('return ogs', function () {
   });
 
   context('should return the proper error data', function () {
+    afterEach(function () {
+      axios.interceptors.response.clear();
+    });
+
     it('when an server error occurres but the request still works - 400', function () {
-      mockAgent.get('http://www.testerror.com')
-        .intercept({ path: '/' })
-        .reply(400);
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 400,
+        };
+      });
 
       return ogs({ url: 'http://www.testerror.com' })
         .then(function () {
@@ -343,12 +348,13 @@ describe('return ogs', function () {
     });
 
     it('when the request sends a Response code 401 error', function () {
-      mockAgent.get('http://www.testerror.com')
-        .intercept({ path: '/' })
-        .reply(401, {
-          message: 'Response code 401',
-          code: '401',
-        });
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 401,
+          data: 'Response code 401',
+        };
+      });
 
       return ogs({ url: 'http://www.testerror.com' })
         .then(function () {
@@ -365,12 +371,13 @@ describe('return ogs', function () {
     });
 
     it('when the request sends a 403 error', function () {
-      mockAgent.get('http://www.testerror.com')
-        .intercept({ path: '/' })
-        .reply(403, {
-          message: '403 Forbidden',
-          code: '403',
-        });
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 403,
+          data: '403 Forbidden',
+        };
+      });
 
       return ogs({ url: 'http://www.testerror.com' })
         .then(function () {
@@ -387,12 +394,13 @@ describe('return ogs', function () {
     });
 
     it('when the request sends a ENOTFOUND error', function () {
-      mockAgent.get('http://www.testerror.com')
-        .intercept({ path: '/' })
-        .reply(404, {
-          message: 'server error',
-          code: 'ENOTFOUND',
-        });
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 404,
+          data: 'server error',
+        };
+      });
 
       return ogs({ url: 'www.testerror.com' })
         .then(function () {
@@ -409,12 +417,13 @@ describe('return ogs', function () {
     });
 
     it('when the request sends a 408 error', function () {
-      mockAgent.get('http://www.testerror.com')
-        .intercept({ path: '/' })
-        .reply(408, {
-          message: '408 Request Timeout',
-          code: '408',
-        });
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 408,
+          data: '408 Request Timeout',
+        };
+      });
 
       return ogs({ url: 'http://www.testerror.com' })
         .then(function () {
@@ -431,12 +440,13 @@ describe('return ogs', function () {
     });
 
     it('when the request sends a 410 error', function () {
-      mockAgent.get('http://www.testerror.com')
-        .intercept({ path: '/' })
-        .reply(410, {
-          message: '410 Gone',
-          code: '410',
-        });
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 410,
+          data: '410 Gone',
+        };
+      });
 
       return ogs({ url: 'http://www.testerror.com' })
         .then(function () {
@@ -453,12 +463,13 @@ describe('return ogs', function () {
     });
 
     it('when the request sends a general error', function () {
-      mockAgent.get('http://www.testerror.com')
-        .intercept({ path: '/' })
-        .reply(418, {
-          message: '418 I\'m a teapot',
-          code: '418',
-        });
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 418,
+          data: "481 I'm a teapot",
+        };
+      });
 
       return ogs({ url: 'http://www.testerror.com' })
         .then(function () {
@@ -475,12 +486,13 @@ describe('return ogs', function () {
     });
 
     it('when the request sends a Response code 500 error', function () {
-      mockAgent.get('http://www.testerror.com')
-        .intercept({ path: '/' })
-        .reply(500, {
-          message: 'Response code 500',
-          code: '500',
-        });
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 500,
+          data: 'Response code 500',
+        };
+      });
 
       return ogs({ url: 'http://www.testerror.com' })
         .then(function () {
@@ -497,12 +509,13 @@ describe('return ogs', function () {
     });
 
     it('when the request sends a 502 error', function () {
-      mockAgent.get('http://www.testerror.com')
-        .intercept({ path: '/' })
-        .reply(502, {
-          message: '502 Bad Gateway',
-          code: '502',
-        });
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 502,
+          data: '502 Bad Gateway',
+        };
+      });
 
       return ogs({ url: 'http://www.testerror.com' })
         .then(function () {
@@ -519,12 +532,13 @@ describe('return ogs', function () {
     });
 
     it('when the request sends a 503 error', function () {
-      mockAgent.get('http://www.testerror.com')
-        .intercept({ path: '/' })
-        .reply(503, {
-          message: '503 Service Unavailable',
-          code: '503',
-        });
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 503,
+          data: '503 Service Unavailable',
+        };
+      });
 
       return ogs({ url: 'http://www.testerror.com' })
         .then(function () {
@@ -541,12 +555,13 @@ describe('return ogs', function () {
     });
 
     it('when the request sends a 504 error', function () {
-      mockAgent.get('http://www.testerror.com')
-        .intercept({ path: '/' })
-        .reply(504, {
-          message: '504 Gateway Timeout',
-          code: '504',
-        });
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 504,
+          data: '504 Gateway Timeout',
+        };
+      });
 
       return ogs({ url: 'http://www.testerror.com' })
         .then(function () {
@@ -563,9 +578,12 @@ describe('return ogs', function () {
     });
 
     it('when an server sends back nothing', function () {
-      mockAgent.get('http://www.test.com')
-        .intercept({ path: '/' })
-        .reply(200);
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 200,
+        };
+      });
 
       return ogs({ url: 'www.test.com' })
         .then(function () {
@@ -582,9 +600,13 @@ describe('return ogs', function () {
     });
 
     it('when an server sends back nothing, not even a buffer', function () {
-      mockAgent.get('http://www.test.com')
-        .intercept({ path: '/' })
-        .reply(200, '');
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 200,
+          data: '',
+        };
+      });
 
       return ogs({ url: 'www.test.com' })
         .then(function () {
@@ -601,12 +623,13 @@ describe('return ogs', function () {
     });
 
     it('when an server error occurres', function () {
-      mockAgent.get('http://www.testerror.com')
-        .intercept({ path: '/' })
-        .reply(500, {
-          message: '500 Internal Server Error',
-          code: '500',
-        });
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 500,
+          data: '500 Internal Server Error',
+        };
+      });
 
       return ogs({ url: 'http://www.testerror.com' })
         .then(function () {
@@ -623,9 +646,12 @@ describe('return ogs', function () {
     });
 
     it('when an server error occurres but the request still works - 500', function () {
-      mockAgent.get('http://www.testerror.com')
-        .intercept({ path: '/' })
-        .reply(500);
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 500,
+        };
+      });
 
       return ogs({ url: 'http://www.testerror.com' })
         .then(function () {
@@ -657,9 +683,14 @@ describe('return ogs', function () {
     });
 
     it('when trying to hit a non html pages based on content-type', function () {
-      mockAgent.get('http://www.test.com')
-        .intercept({ path: '/' })
-        .reply(200, { }, { headers: { 'content-type': 'foo' } });
+      axios.interceptors.response.use(function (response) {
+        return {
+          ...response,
+          status: 200,
+          headers: { 'content-type': 'foo' },
+        };
+      });
+
       return ogs({ url: 'http://www.test.com' })
         .then(function () {
           expect('').to.be.eql('this should not happen');

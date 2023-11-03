@@ -1,6 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const undici_1 = require("undici");
+const axios_1 = __importDefault(require("axios"));
 /**
  * performs the fetch request and formats the body for ogs
  *
@@ -12,7 +15,7 @@ async function requestAndResultsFormatter(options) {
     let body;
     let response;
     try {
-        response = await (0, undici_1.fetch)(options.url || '', {
+        response = await axios_1.default.get(options.url || '', {
             signal: AbortSignal.timeout((options.timeout || 10) * 1000),
             headers: { Origin: options.url },
             ...options.fetchOptions,

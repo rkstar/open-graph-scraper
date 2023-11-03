@@ -1,22 +1,16 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { MockAgent, setGlobalDispatcher } from 'undici';
+import axios from 'axios';
 
 import ogs from '../../index';
 
 const sandbox = sinon.createSandbox();
-const mockAgent = new MockAgent();
 
 describe('static check meta tags', function () {
-  beforeEach(function () {
-    setGlobalDispatcher(mockAgent);
-    mockAgent.disableNetConnect();
-  });
-
   afterEach(function () {
+    axios.interceptors.response.clear();
     sandbox.restore();
-    mockAgent.enableNetConnect();
   });
 
   it('check one off tags', function () {
@@ -29,9 +23,13 @@ describe('static check meta tags', function () {
       <meta property="og:type" name="og:type" content="bar" />
     </head></html>`;
 
-    mockAgent.get('http://www.test.com')
-      .intercept({ path: '/' })
-      .reply(200, metaHTML);
+    axios.interceptors.response.use(function (response) {
+      return {
+        ...response,
+        status: 200,
+        data: metaHTML,
+      };
+    });
 
     return ogs({ url: 'www.test.com' })
       .then(function (data) {
@@ -62,9 +60,13 @@ describe('static check meta tags', function () {
       <meta property="og:type" content="article">
     </head></html>`;
 
-    mockAgent.get('http://www.test.com')
-      .intercept({ path: '/' })
-      .reply(200, metaHTML);
+    axios.interceptors.response.use(function (response) {
+      return {
+        ...response,
+        status: 200,
+        data: metaHTML,
+      };
+    });
 
     return ogs({ url: 'www.test.com' })
       .then(function (data) {
@@ -89,9 +91,13 @@ describe('static check meta tags', function () {
       <meta property="og:audio" content="http://foo.com">
     </head></html>`;
 
-    mockAgent.get('http://www.test.com')
-      .intercept({ path: '/' })
-      .reply(200, metaHTML);
+    axios.interceptors.response.use(function (response) {
+      return {
+        ...response,
+        status: 200,
+        data: metaHTML,
+      };
+    });
 
     return ogs({ url: 'www.test.com' })
       .then(function (data) {
@@ -114,9 +120,13 @@ describe('static check meta tags', function () {
       <meta property="og:image:secure_url" content="https://foobar.png">
     </head></html>`;
 
-    mockAgent.get('http://www.test.com')
-      .intercept({ path: '/' })
-      .reply(200, metaHTML);
+    axios.interceptors.response.use(function (response) {
+      return {
+        ...response,
+        status: 200,
+        data: metaHTML,
+      };
+    });
 
     return ogs({ url: 'www.test.com' })
       .then(function (data) {
@@ -152,9 +162,13 @@ describe('static check meta tags', function () {
       <meta property="twitter:title" name="twitter:title" content="the foo of bar" />
     </head></html>`;
 
-    mockAgent.get('http://www.test.com')
-      .intercept({ path: '/' })
-      .reply(200, metaHTML);
+    axios.interceptors.response.use(function (response) {
+      return {
+        ...response,
+        status: 200,
+        data: metaHTML,
+      };
+    });
 
     return ogs({ url: 'www.test.com' })
       .then(function (data) {
@@ -193,9 +207,13 @@ describe('static check meta tags', function () {
       <meta property="og:video:width" content="1">
     </head></html>`;
 
-    mockAgent.get('http://www.test.com')
-      .intercept({ path: '/' })
-      .reply(200, metaHTML);
+    axios.interceptors.response.use(function (response) {
+      return {
+        ...response,
+        status: 200,
+        data: metaHTML,
+      };
+    });
 
     return ogs({ url: 'www.test.com' })
       .then(function (data) {
@@ -229,9 +247,13 @@ describe('static check meta tags', function () {
     </head></html>`;
     /* eslint-enable max-len */
 
-    mockAgent.get('http://www.test.com')
-      .intercept({ path: '/' })
-      .reply(200, metaHTML);
+    axios.interceptors.response.use(function (response) {
+      return {
+        ...response,
+        status: 200,
+        data: metaHTML,
+      };
+    });
 
     return ogs({ url: 'www.test.com' })
       .then(function (data) {
@@ -276,9 +298,13 @@ describe('static check meta tags', function () {
     </head></html>`;
     /* eslint-enable max-len */
 
-    mockAgent.get('http://www.test.com')
-      .intercept({ path: '/' })
-      .reply(200, metaHTML);
+    axios.interceptors.response.use(function (response) {
+      return {
+        ...response,
+        status: 200,
+        data: metaHTML,
+      };
+    });
 
     return ogs({ url: 'www.test.com' })
       .then(function (data) {
@@ -323,9 +349,13 @@ describe('static check meta tags', function () {
     </head></html>`;
     /* eslint-enable max-len */
 
-    mockAgent.get('http://www.test.com')
-      .intercept({ path: '/' })
-      .reply(200, metaHTML);
+    axios.interceptors.response.use(function (response) {
+      return {
+        ...response,
+        status: 200,
+        data: metaHTML,
+      };
+    });
 
     return ogs({ url: 'www.test.com' })
       .then(function (data) {

@@ -1,4 +1,4 @@
-import type { RequestInit } from 'undici';
+import type { AxiosRequestConfig as RequestInit } from 'axios';
 /**
  * The options used by Open Graph Scraper
  *

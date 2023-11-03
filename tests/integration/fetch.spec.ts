@@ -7,7 +7,6 @@ describe('fetch', function () {
   // TODO: Site keeps going offline, will need to find a new site
   // eslint-disable-next-line mocha/no-skipped-tests
   it.skip('setting the fetch headers', function () {
-    // userAgent is undici by default
     const userAgent = 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.5563.57 Mobile Safari/537.36';
     return ogs({ url: 'https://www.whatsmyua.info/', fetchOptions: { headers: { 'user-agent': userAgent } } })
       .then(async function ({
