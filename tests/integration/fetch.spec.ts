@@ -3,6 +3,8 @@ import { load } from 'cheerio';
 
 import ogs from '../../index';
 
+const abortController = new AbortController();
+
 describe('fetch', function () {
   // TODO: Site keeps going offline, will need to find a new site
   // eslint-disable-next-line mocha/no-skipped-tests
@@ -58,7 +60,7 @@ describe('fetch', function () {
   // https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/timeout
   // eslint-disable-next-line mocha/no-skipped-tests
   it.skip('setting a timeout - using AbortSignal.timeout()', function () {
-    return ogs({ url: 'https://releases.ubuntu.com/23.04/ubuntu-23.04-desktop-amd64.iso', fetchOptions: { signal: AbortSignal.timeout(3000) } })
+    return ogs({ url: 'https://releases.ubuntu.com/23.04/ubuntu-23.04-desktop-amd64.iso', fetchOptions: { signal: abortController.signal } })
       .then(function () {
         expect().fail('this should not happen');
       })
@@ -82,9 +84,8 @@ describe('fetch', function () {
   // https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/abort
   // eslint-disable-next-line mocha/no-skipped-tests
   it.skip('setting a timeout - using controller.abort()', function () {
-    const controller = new AbortController();
-    setTimeout(() => controller.abort(), 3000);
-    return ogs({ url: 'https://releases.ubuntu.com/23.04/ubuntu-23.04-desktop-amd64.iso', fetchOptions: { signal: controller.signal } })
+    setTimeout(() => abortController.abort(), 3000);
+    return ogs({ url: 'https://releases.ubuntu.com/23.04/ubuntu-23.04-desktop-amd64.iso', fetchOptions: { signal: abortController.signal } })
       .then(function () {
         expect().fail('this should not happen');
       })
