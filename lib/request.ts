@@ -1,6 +1,8 @@
 import axios from 'axios';
 import type { OpenGraphScraperOptions } from './types';
 
+const abortController = new AbortController();
+
 /**
  * performs the fetch request and formats the body for ogs
  *
@@ -15,7 +17,7 @@ export default async function requestAndResultsFormatter(options: OpenGraphScrap
     response = await axios.get(
       options.url || '',
       {
-        signal: AbortSignal.timeout((options.timeout || 10) * 1000),
+        signal: abortController.signal,
         headers: { Origin: options.url },
         ...options.fetchOptions,
       },
