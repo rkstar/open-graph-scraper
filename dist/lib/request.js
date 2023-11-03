@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
+const abortController = new AbortController();
 /**
  * performs the fetch request and formats the body for ogs
  *
@@ -16,7 +17,7 @@ async function requestAndResultsFormatter(options) {
     let response;
     try {
         response = await axios_1.default.get(options.url || '', {
-            signal: AbortSignal.timeout((options.timeout || 10) * 1000),
+            signal: abortController.signal,
             headers: { Origin: options.url },
             ...options.fetchOptions,
         });
