@@ -13,16 +13,14 @@ const abortController = new AbortController();
  *
  */
 async function requestAndResultsFormatter(options) {
-    let body;
-    let response;
     try {
-        response = await axios_1.default.get(options.url || '', {
+        const response = await axios_1.default.get(options.url || '', {
             signal: abortController.signal,
             headers: { Origin: options.url },
             ...options.fetchOptions,
         });
-        body = await response.text();
-        if (response && response.headers && response.headers.get('content-type') && !response.headers.get('content-type')?.includes('text/')) {
+        const body = response.data;
+        if (response && response.headers && response.headers['content-type'] && !response.headers['content-type']?.includes('text/')) {
             throw new Error('Page must return a header content-type with text/');
         }
         if (response && response.status && (response.status.toString().substring(0, 1) === '4' || response.status.toString().substring(0, 1) === '5')) {
@@ -54,12 +52,12 @@ async function requestAndResultsFormatter(options) {
         if (body === undefined || body === '') {
             throw new Error('Page not found');
         }
+        return { body, response };
     }
     catch (error) {
         if (error instanceof Error && error.message === 'fetch failed')
             throw error.cause;
         throw error;
     }
-    return { body, response };
 }
 exports.default = requestAndResultsFormatter;
