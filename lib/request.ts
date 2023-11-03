@@ -11,10 +11,8 @@ const abortController = new AbortController();
  *
  */
 export default async function requestAndResultsFormatter(options: OpenGraphScraperOptions) {
-  let body;
-  let response;
   try {
-    response = await axios.get(
+    const response = await axios.get(
       options.url || '',
       {
         signal: abortController.signal,
@@ -23,9 +21,9 @@ export default async function requestAndResultsFormatter(options: OpenGraphScrap
       },
     );
 
-    body = await response.text();
+    const body = response.data;
 
-    if (response && response.headers && response.headers.get('content-type') && !response.headers.get('content-type')?.includes('text/')) {
+    if (response && response.headers && response.headers['content-type'] && !response.headers['content-type']?.includes('text/')) {
       throw new Error('Page must return a header content-type with text/');
     }
     if (response && response.status && (response.status.toString().substring(0, 1) === '4' || response.status.toString().substring(0, 1) === '5')) {
@@ -58,10 +56,10 @@ export default async function requestAndResultsFormatter(options: OpenGraphScrap
     if (body === undefined || body === '') {
       throw new Error('Page not found');
     }
+
+    return { body, response };
   } catch (error) {
     if (error instanceof Error && error.message === 'fetch failed') throw error.cause;
     throw error;
   }
-
-  return { body, response };
 }
