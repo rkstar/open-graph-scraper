@@ -5,6 +5,10 @@ import type {
   OgObject,
 } from './lib/types';
 
+// NOTE: @rkstar
+// we have to set the global buffer here because react-native does not have Buffer built-in
+global.Buffer = require('buffer').Buffer;
+
 /**
  * `open-graph-scraper` uses [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch) for http requests
  * for scraping Open Graph and Twitter Card info off a website.

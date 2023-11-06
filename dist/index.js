@@ -5,6 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 /* eslint-disable max-len, import/no-import-module-exports */
 const openGraphScraper_1 = __importDefault(require("./lib/openGraphScraper"));
+// NOTE: @rkstar
+// we have to set the global buffer here because react-native does not have Buffer built-in
+global.Buffer = require('buffer').Buffer;
 /**
  * `open-graph-scraper` uses [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch) for http requests
  * for scraping Open Graph and Twitter Card info off a website.
